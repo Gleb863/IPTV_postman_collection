@@ -1,0 +1,731 @@
+{
+	"info": {
+		"_postman_id": "9bd0178d-9f5f-493a-ac24-6682692d3375",
+		"name": "IPTV Copy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "channels",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('response test', () => {\r",
+							"    pm.response.to.be.ok;\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"    pm.response.to.not.have.jsonBody(\"error\");\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000 * 2); // milliseconds * seconds * minutes\r",
+							"});\r",
+							"\r",
+							"pm.test('response chanels test', () => {\r",
+							"    let response = pm.response.json();\r",
+							"    pm.expect(response).to.have.keys('data');\r",
+							"    pm.expect(response.data).to.have.keys('items', 'total', 'links', 'type', 'itemTypes', 'urn', 'title', 'recommendationId');\r",
+							"    if (response.data.items){\r",
+							"        pm.expect(response.data.items[0]).to.have.keys('id', 'type', 'urn', 'title', 'adult', 'resources', 'description', 'lcn', 'style', 'offersUrn', 'available', 'previewAvailable', 'rating', 'quality', 'services', 'schedules', 'offer', 'favorite', 'metric');\r",
+							"        }\r",
+							"    pm.expect(response.data.items[0].lcn).to.be.a('Number', 'ich is not a number');\r",
+							"    pm.expect(response.data.items[0].lcn).equal(parseInt(response.data.items[0].lcn));\r",
+							"    pm.expect(response.data.items[0].lcn).greaterThan(0);\r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "View",
+						"value": "stb3",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{stb_host}}/api/v3/showcases/library/channels?limit=100&page=1",
+					"host": [
+						"{{stb_host}}"
+					],
+					"path": [
+						"api",
+						"v3",
+						"showcases",
+						"library",
+						"channels"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "100"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "channels_multi",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "View",
+						"value": "stb3",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{stb_host}}/channel_list/multiscreen",
+					"host": [
+						"{{stb_host}}"
+					],
+					"path": [
+						"channel_list",
+						"multiscreen"
+					],
+					"query": [
+						{
+							"key": "X-Auth-Token",
+							"value": "{{token}}",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "token/device",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"timestamp\", Math.floor(Date.now() / 1000));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('response test', () => {\r",
+							"    pm.response.to.be.ok;\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"    pm.response.to.not.have.jsonBody(\"error\");\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000 * 2); // milliseconds * seconds * minutes\r",
+							"});\r",
+							"\r",
+							"pm.test('response contetnt test', () => {\r",
+							"    let response = pm.response.json();\r",
+							"    let now = Math.floor(Date.now() / 1000);\r",
+							"    pm.expect(response).to.have.keys('is_bound', 'expires', 'base_endpoint', 'token', 'result', 'subscriber_type');\r",
+							"    pm.expect(now).to.be.below(response.expires);\r",
+							"    pm.expect(response.is_bound).to.be.an('boolean');\r",
+							"    let tokenJsonString = atob(response.token);\r",
+							"    pm.expect(tokenJsonString).to.be.an('string');\r",
+							"    let tokenData = JSON.parse(tokenJsonString);\r",
+							"    pm.expect(tokenData).to.have.keys('data', 'signature');\r",
+							"    pm.expect(response.result).equal(1);\r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Device-Info",
+						"value": "{{device_id}}",
+						"type": "text"
+					},
+					{
+						"key": "View",
+						"value": "stb3",
+						"type": "text"
+					},
+					{
+						"key": "X-App-Version",
+						"value": "3.9.5",
+						"type": "text"
+					},
+					{
+						"key": "User-Agent",
+						"value": "{{user_agent}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{android_host}}/token/device?client_id=er_android_device&device_id={{device_id}}&timestamp={{timestamp}}",
+					"host": [
+						"{{android_host}}"
+					],
+					"path": [
+						"token",
+						"device"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "er_android_device"
+						},
+						{
+							"key": "device_id",
+							"value": "{{device_id}}"
+						},
+						{
+							"key": "timestamp",
+							"value": "{{timestamp}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "epg/schedule",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"from\", Math.floor(Date.now() / 1000));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "View",
+						"value": "stb3",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{epg_host}}/asset/get-period-schedule?from={{from}}&channels=",
+					"host": [
+						"{{epg_host}}"
+					],
+					"path": [
+						"asset",
+						"get-period-schedule"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "{{from}}"
+						},
+						{
+							"key": "channels",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "movies",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('response test', () => {\r",
+							"    pm.response.to.be.ok;\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"    pm.response.to.not.have.jsonBody(\"error\");\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000 * 2); // milliseconds * seconds * minutes\r",
+							"});\r",
+							"\r",
+							"pm.test('response movies test', () => {\r",
+							"    let response = pm.response.json();\r",
+							"    pm.expect(response).to.have.keys('data');\r",
+							"    pm.expect(response.data).to.have.keys('items', 'total', 'links', 'type', 'itemTypes', 'urn', 'title', 'recommendationId');\r",
+							"    \r",
+							"    if (response.data.items){\r",
+							"        pm.expect(response.data.items[0]).to.have.keys(\r",
+							"            'id',\r",
+							"            'type', \r",
+							"            'urn',\r",
+							"            'title',\r",
+							"            'adult',\r",
+							"            'resources',\r",
+							"            'releasedAt',\r",
+							"            'rating',\r",
+							"            'favorite',\r",
+							"            'score',\r",
+							"            'personsUrn',\r",
+							"            'categories',\r",
+							"            'offersUrn', //not used\r",
+							"            'available',\r",
+							"            'purchaseMethod',\r",
+							"            'offer',\r",
+							"            'deeplinks',\r",
+							"            'description',\r",
+							"            'duration',\r",
+							"            'position',\r",
+							"            'estimate');\r",
+							"    }\r",
+							"    \r",
+							"    if (response.data.items[0].resources){\r",
+							"        pm.expect(response.data.items[0].resources[0]).to.have.keys('id', 'type');\r",
+							"    }\r",
+							"\r",
+							"    let zeroPad = (number) => {\r",
+							"        return (number < 10) ? '0' + number : number;\r",
+							"    };  \r",
+							"\r",
+							"    pm.expect(response.data.items[0].releasedAt).satisfy((date) => {\r",
+							"        let testDate = new Date(date);\r",
+							"        return date === (testDate.getFullYear() + '-' + zeroPad(testDate.getMonth() + 1) + '-' + zeroPad(testDate.getDate()));\r",
+							"    }, 'response.data.items[].releasedAt is not a valid Y-m-d date');\r",
+							"\r",
+							"    pm.expect(response.data.items[0].rating).to.have.keys('type');\r",
+							"    pm.expect(response.data.items[0].favorite).to.have.keys('type');\r",
+							"    \r",
+							"    if (response.data.items[0].score){\r",
+							"        for (let index in response.data.items[0].score) {\r",
+							"            let score = response.data.items[0].score[index];\r",
+							"            pm.expect(score).to.have.keys('type', 'title', 'value');\r",
+							"            pm.expect(score.value).to.be.a('Number', 'value is not Number');\r",
+							"            pm.expect(score.value).equal(parseFloat(score.value));\r",
+							"        }\r",
+							"    }\r",
+							"\r",
+							"    if (response.data.items[0].categories){\r",
+							"        for (let index in response.data.items[0].categories){\r",
+							"            let cat = response.data.items[0].categories[index];\r",
+							"            pm.expect(cat).to.have.keys('id', 'title');\r",
+							"            pm.expect(cat.id).to.be.a('Number', 'id is not Number');\r",
+							"            pm.expect(cat.id).equal(parseInt(cat.id));\r",
+							"        }\r",
+							"               \r",
+							"    }\r",
+							"\r",
+							"    pm.expect(response.data.items[0].available).to.have.keys('type');\r",
+							"    pm.expect(response.data.items[0].purchaseMethod).to.have.keys('type');\r",
+							"\r",
+							"    pm.expect(response.data.items[0].offer).to.have.keys(\r",
+							"        'id', \r",
+							"        'type',\r",
+							"        'urn', \r",
+							"        'price',\r",
+							"        'currency',\r",
+							"        'purchaseAt',\r",
+							"        'expireAt',\r",
+							"        'ivod',\r",
+							"        'status',\r",
+							"        'provider',\r",
+							"        'period',\r",
+							"        'adult',\r",
+							"        'root',\r",
+							"        'stocks',\r",
+							"        'quality',\r",
+							"        'store',\r",
+							"        'source');\r",
+							"\r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "View",
+						"value": "stb3",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{stb_host}}/api/v3/showcases/library/movies",
+					"host": [
+						"{{stb_host}}"
+					],
+					"path": [
+						"api",
+						"v3",
+						"showcases",
+						"library",
+						"movies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "domains",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Auth-Token",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "User-Agent",
+						"value": "{{user_agent}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{android_host}}/er/misc/domains",
+					"host": [
+						"{{android_host}}"
+					],
+					"path": [
+						"er",
+						"misc",
+						"domains"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ssoauth/auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('response test', () => {\r",
+							"    pm.response.to.be.ok;\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"    pm.response.to.not.have.jsonBody(\"error\");\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000 * 2); // milliseconds * seconds * minutes\r",
+							"});\r",
+							"pm.test('response sso test', () => {\r",
+							"    let response = pm.response.json();\r",
+							"    pm.expect(response).to.have.keys('sso', 'result');\r",
+							"    pm.expect(response.sso).to.match(/^[a-f0-9]{64}$/i, 'Token is invalid');\r",
+							"    pm.expect(response.result).equal(1);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "{{username}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "text"
+						},
+						{
+							"key": "region",
+							"value": "samara",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{android_host}}/er/ssoauth/auth",
+					"host": [
+						"{{android_host}}"
+					],
+					"path": [
+						"er",
+						"ssoauth",
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/token/subscriber_device/by_sso",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let now = Math.floor(Date.now() / 1000),\r",
+							"    expiresAt = pm.collectionVariables.get('expiresAt');\r",
+							"\r",
+							"let getSsoToken = () => {\r",
+							"    const ssoTokenRequest = {\r",
+							"        url: pm.collectionVariables.replaceIn(\"{{android_host}}/er/ssoauth/auth\"),\r",
+							"        method: 'POST',\r",
+							"        body: {\r",
+							"            mode: 'form-data',\r",
+							"            formdata: [\r",
+							"                {\r",
+							"                    key: \"username\",\r",
+							"                    value: pm.collectionVariables.get(\"username\")\r",
+							"                },\r",
+							"                {\r",
+							"                    key: \"password\",\r",
+							"                    value: pm.collectionVariables.get(\"password\")\r",
+							"                },\r",
+							"                {\r",
+							"                    key: \"region\",\r",
+							"                    value: \"samara\"\r",
+							"                }\r",
+							"            ],\r",
+							"        }\r",
+							"    };\r",
+							"\r",
+							"    pm.sendRequest(ssoTokenRequest, function (err, response) {\r",
+							"        if (err) {\r",
+							"            throw new Error(err);\r",
+							"        }\r",
+							"\r",
+							"        let data = response.json();\r",
+							"\r",
+							"        if (!data.sso) {\r",
+							"            throw new Error('Invalid sso token or unavailable');\r",
+							"        }\r",
+							"\r",
+							"        pm.collectionVariables.set('sso_token', data.sso);\r",
+							"    });\r",
+							"};\r",
+							"let getAuthToken = (now) => {\r",
+							"    pm.collectionVariables.set(\"timestamp\", now);\r",
+							"\r",
+							"    const getTokenRequest = {\r",
+							"        url: pm.collectionVariables.replaceIn(\"{{android_host}}/token/device?client_id=er_android_device&device_id={{device_id}}&timestamp={{timestamp}}\"),\r",
+							"        method: 'GET',\r",
+							"        header: [\r",
+							"            {\r",
+							"                key: \"X-Device-Info\",\r",
+							"                value: pm.collectionVariables.get(\"device_id\")\r",
+							"            },\r",
+							"            {\r",
+							"                key: \"View\",\r",
+							"                value: \"stb3\"\r",
+							"            },\r",
+							"            {\r",
+							"                key: \"X-App-Version\",\r",
+							"                value: \"3.9.5\"\r",
+							"            },\r",
+							"            {\r",
+							"                key: \"User-Agent\",\r",
+							"                value: pm.collectionVariables.get(\"user_agent\")\r",
+							"            }\r",
+							"        ],\r",
+							"    };\r",
+							"\r",
+							"    pm.sendRequest(getTokenRequest, function (err, response) {\r",
+							"        if (err) {\r",
+							"            throw new Error(err);\r",
+							"        }\r",
+							"\r",
+							"        let data = response.json();\r",
+							"\r",
+							"        if (!data.token) {\r",
+							"            throw new Error('Invalid token or unavailable');\r",
+							"        }\r",
+							"\r",
+							"        pm.collectionVariables.set('token', data.token);\r",
+							"\r",
+							"        getSsoToken();\r",
+							"    });\r",
+							"};\r",
+							"\r",
+							"if (expiresAt && expiresAt < now) {\r",
+							"    getAuthToken(now);\r",
+							"} else {\r",
+							"    getSsoToken();\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Device-Info",
+						"value": "{{device_id}}",
+						"type": "text"
+					},
+					{
+						"key": "View",
+						"value": "stb3",
+						"type": "text"
+					},
+					{
+						"key": "X-App-Version",
+						"value": "3.9.5",
+						"type": "text"
+					},
+					{
+						"key": "User-Agent",
+						"value": "{{user_agent}}",
+						"type": "text"
+					},
+					{
+						"key": "X-Auth-Token",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{android_host}}/token/subscriber_device/by_sso?sso_system=er&sso_key={{sso_token}}",
+					"host": [
+						"{{android_host}}"
+					],
+					"path": [
+						"token",
+						"subscriber_device",
+						"by_sso"
+					],
+					"query": [
+						{
+							"key": "sso_system",
+							"value": "er"
+						},
+						{
+							"key": "sso_key",
+							"value": "{{sso_token}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "android_host",
+			"value": ""
+		},
+		{
+			"key": "stb_host",
+			"value": ""
+		},
+		{
+			"key": "device_id",
+			"value": "4649bbafa1f0ed35"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "username",
+			"value": ""
+		},
+		{
+			"key": "password",
+			"value": ""
+		},
+		{
+			"key": "user_agent",
+			"value": "KODI"
+		},
+		{
+			"key": "expiresAt",
+			"value": ""
+		},
+		{
+			"key": "sso_token",
+			"value": ""
+		},
+		{
+			"key": "epg_host",
+			"value": ""
+		}
+	]
+}
