@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "9bd0178d-9f5f-493a-ac24-6682692d3375",
-		"name": "IPTV Copy",
+		"_postman_id": "5e780200-b6fb-47ac-a6c3-21593b22960c",
+		"name": "IPTV",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -697,7 +697,7 @@
 		},
 		{
 			"key": "device_id",
-			"value": "4649bbafa1f0ed35"
+			"value": ""
 		},
 		{
 			"key": "token",
