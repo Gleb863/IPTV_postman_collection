@@ -411,6 +411,64 @@
 		},
 		{
 			"name": "domains",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('response test', () => {\r",
+							"    pm.response.to.be.ok;\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"    pm.response.to.not.have.jsonBody(\"error\");\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000 * 2); // milliseconds * seconds * minutes\r",
+							"});\r",
+							"\r",
+							"pm.test('domains test', () => {\r",
+							"    let items = pm.response.json();\r",
+							"    pm.expect(items).to.have.key('domains','result');\r",
+							"    pm.expect(items.result).equal(1);\r",
+							"    if (items.domains) {\r",
+							"        for (let i in items.domains) {\r",
+							"            let domain = items.domains[i];\r",
+							"            pm.expect(domain).to.have.keys('code',\r",
+							"            'weight',\r",
+							"            'title',\r",
+							"            'timeshift',\r",
+							"            'extid',\r",
+							"            'portal',\r",
+							"            'bbox',\r",
+							"            'id',\r",
+							"            'discovery');\r",
+							"            pm.expect(domain.bbox).to.have.keys('min_lon',\r",
+							"            'max_lon',\r",
+							"            'max_lat',\r",
+							"            'min_lat');\r",
+							"\r",
+							"            pm.expect(items.domains[i].code).equal(parseInt(items.domains[i].code), 'code is incorrect');\r",
+							"\r",
+							"            pm.expect(items.domains[i].weight).equal(parseInt(items.domains[i].weight), 'weight is incorrect');\r",
+							"\r",
+							"            pm.expect(items.domains[i].timeshift).equal(parseInt(items.domains[i].timeshift), 'timeshift is incorrect');\r",
+							"\r",
+							"            pm.expect(items.domains[i].bbox.min_lon).equal(parseFloat(items.domains[i].bbox.min_lon));\r",
+							"\r",
+							"            pm.expect(items.domains[i].bbox.max_lon).equal(parseFloat(items.domains[i].bbox.max_lon));\r",
+							"\r",
+							"            pm.expect(items.domains[i].bbox.max_lat).equal(parseFloat(items.domains[i].bbox.max_lat));\r",
+							"\r",
+							"            pm.expect(items.domains[i].bbox.min_lat).equal(parseFloat(items.domains[i].bbox.min_lat));\r",
+							"            \r",
+							"            pm.expect(items.domains[i].id).equal(parseInt(items.domains[i].id), 'id is incorrect');\r",
+							"          \r",
+							"            }\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"user-agent": true
